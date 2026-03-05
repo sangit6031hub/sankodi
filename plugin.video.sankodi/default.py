@@ -22,7 +22,7 @@ def check_for_updates():
     """
     try:
         # GitHub API for latest release
-        url = 'https://api.github.com/repos/san/sankodi/releases/latest'
+        url = 'https://api.github.com/repos/sangit6031hub/sankodi/releases/latest'
         response = requests.get(url, timeout=10)
         if response.status_code == 200:
             data = response.json()
