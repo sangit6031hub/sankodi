@@ -1,0 +1,105 @@
+name: Build and Release Kodi Addon
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.x'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install requests beautifulsoup4
+
+    - name: Generate version
+      id: version
+      run: |
+        # Generate version based on date and commit count
+        DATE=$(date +%Y%m%d)
+        COMMIT_COUNT=$(git rev-list --count HEAD)
+        VERSION="${DATE}.${COMMIT_COUNT}"
+        echo "version=${VERSION}" >> $GITHUB_OUTPUT
+        echo "Generated version: ${VERSION}"
+
+    - name: Update addon version
+      run: |
+        VERSION=${{ steps.version.outputs.version }}
+        # Update plugin addon.xml
+        sed -i "s/version=\"[^\"]*\"/version=\"$VERSION\"/" plugin.video.sankodi/addon.xml
+        # Update repository addons.xml
+        sed -i "s/version=\"[^\"]*\"/version=\"$VERSION\"/" repository.sankodi/addons.xml
+
+    - name: Regenerate repository checksum
+      run: |
+        cd repository.sankodi
+        md5sum addons.xml > addons.xml.md5
+        cd ..
+
+    - name: Validate addon
+      run: |
+        python -c "
+        import xml.etree.ElementTree as ET
+        tree = ET.parse('plugin.video.sankodi/addon.xml')
+        root = tree.getroot()
+        version = root.attrib['version']
+        print(f'Addon version: {version}')
+        "
+
+    - name: Create addon zip
+      run: |
+        cd plugin.video.sankodi
+        zip -r ../plugin.video.sankodi.zip .
+        cd ..
+
+    - name: Create repository zip
+      run: |
+        cd repository.sankodi
+        zip -r ../repository.sankodi.zip .
+        cd ..
+
+    - name: Create release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.version.outputs.version }}
+        release_name: Auto Release ${{ steps.version.outputs.version }}
+        draft: false
+        prerelease: true
+
+    - name: Upload addon asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./plugin.video.sankodi.zip
+        asset_name: plugin.video.sankodi.zip
+        asset_content_type: application/zip
+
+    - name: Upload repository asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./repository.sankodi.zip
+        asset_name: repository.sankodi.zip
+        asset_content_type: application/zip
