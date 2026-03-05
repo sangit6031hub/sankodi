@@ -9,7 +9,7 @@ A Kodi plugin for browsing and playing videos from multiple websites. Each websi
 - Configurable site URLs via Kodi settings
 - Stream videos directly
 - Automatic update checking from GitHub
-
+ 
 ## Structure
 
 - `plugin.video.sankodi/`: Main addon
