@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addons>
+  <addon id="plugin.video.sankodi" name="SanKodi Video Browser" version="1.0.0" provider-name="San">
+    <requires>
+      <import addon="xbmc.python" version="3.0.0"/>
+      <import addon="script.module.requests" version="2.22.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+      <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+      <summary lang="en_GB">Browse and play videos from multiple websites</summary>
+      <description lang="en_GB">A Kodi plugin to browse and stream videos from configurable websites. Each website is handled by a separate module.</description>
+      <platform>all</platform>
+      <license>GPL-3.0</license>
+      <website>https://github.com/sangit6031hub/sankodi</website>
+      <source>https://github.com/sangit6031hub/sankodi</source>
+      <assets>
+        <icon>resources/icon.png</icon>
+        <fanart>resources/fanart.jpg</fanart>
+      </assets>
+    </extension>
+  </addon>
+</addons>
