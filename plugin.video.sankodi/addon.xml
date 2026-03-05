@@ -8,8 +8,8 @@
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en_GB">Browse and play videos from multiple websites</summary>
-    <description lang="en_GB">A Kodi plugin to browse and stream videos from configurable websites. Each website is handled by a separate module.</description>
+    <summary lang="en_GB">Browse and play videos from TamilGun and other websites</summary>
+    <description lang="en_GB">A Kodi plugin to browse and stream videos from multiple websites including TamilGun. Features include pagination support, thumbnail browsing, and configurable website URLs.</description>
     <platform>all</platform>
     <license>GPL-3.0</license>
     <website>https://github.com/san/sankodi</website>

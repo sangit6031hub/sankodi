@@ -5,18 +5,23 @@ A Kodi plugin for browsing and playing videos from multiple websites. Each websi
 ## Features
 
 - Browse multiple video websites
+- **TamilGun Support**: Browse Tamil movies with pagination
 - Modular design: each site in its own module
-- Configurable site URLs via Kodi settings
+- Configurable site URLs via Kodi addon settings
 - Stream videos directly
 - Automatic update checking from GitHub
+- Pagination support for large content libraries
+- Thumbnail display for all videos
  
 ## Structure
 
 - `plugin.video.sankodi/`: Main addon
   - `addon.xml`: Plugin metadata
-  - `default.py`: Main entry point with auto-update
+  - `default.py`: Main entry point with auto-update and pagination
   - `resources/settings.xml`: Configuration for site URLs
   - `resources/lib/`: Website modules
+    - `tamilgun.py`: TamilGun movie browser with pagination
+    - `site2.py`: Example template for another site
 - `repository.sankodi/`: Repository addon for updates
   - `addon.xml`: Repository metadata
   - `addons.xml`: List of available addons
@@ -44,13 +49,40 @@ The addon checks for updates every time it's loaded:
 
 ## Adding a New Website
 
+### TamilGun Example (Implemented)
+TamilGun is configured by default. To use it:
+
+1. Go to Addon settings in Kodi
+2. Set the TamilGun URL: `https://tamilgun.now/movies/` (or your working mirror)
+3. Open the plugin and select TamilGun
+4. Browse movies with pagination support
+5. Click any thumbnail to watch
+
+### Creating Another Website Module
+
 1. Create a new module in `resources/lib/` (e.g., `site3.py`)
 2. Implement the required functions:
-   - `list_categories(base_url)`: Return list of dicts with 'id' and 'name'
-   - `list_videos(base_url, category_id)`: Return list of dicts with 'id', 'title', 'thumb', 'plot'
-   - `get_video_url(base_url, video_id)`: Return the direct video URL
-3. Add the site to `settings.xml` (e.g., `<setting id="site3_url" type="text" label="Site 3 URL" default="https://example3.com"/>`)
-4. Update `default.py` imports and sites list
+   - `list_videos(base_url, page=1)`: Return dict with:
+     ```python
+     {
+       'videos': [
+         {
+           'title': str,
+           'thumb': str (URL),
+           'url': str (page URL),
+           'plot': str
+         },
+         ...
+       ],
+       'total_pages': int
+     }
+     ```
+   - `get_video_url(movie_page_url)`: Extract and return direct video URL
+3. Add the site to `settings.xml`:
+   ```xml
+   <setting id="site3_url" type="text" label="Site 3 URL" default="https://example3.com"/>
+   ```
+4. Update `default.py` imports and add to sites list
 
 ## Building the Plugin Zip
 
@@ -94,8 +126,13 @@ When releasing new versions:
 
 ## Development Notes
 
-- Uses requests and BeautifulSoup for scraping (ensure dependencies are available)
-- Kodi uses Python 3 in modern versions
+- **TamilGun Module**: Handles movie listing with pagination and video extraction
+- Uses BeautifulSoup for web scraping
+- Graceful error handling with logging to Kodi logs
+- Supports both absolute and relative URLs
+- Automatically detects pagination structure
+- Extracts videos from multiple formats (video tag, iframe, scripts, direct links)
+- Uses Mozilla user-agent for better site compatibility
 - Test scraping functions carefully to avoid breaking terms of service
 - Handle errors gracefully in the plugin
 
