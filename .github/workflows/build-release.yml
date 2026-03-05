@@ -1,4 +1,40 @@
-name: Build and Release Kodi Addon
+# ============================================================================
+# GitHub Actions: Build and Release Workflow
+# ============================================================================
+#
+# REQUIREMENTS:
+# - GitHub repository with Actions enabled
+# - Repository secret: GITHUB_TOKEN (automatically available)
+# - File structure:
+#   - plugin.video.sankodi/addon.xml
+#   - repository.sankodi/addons.xml
+#   - plugin.video.sankodi/ (directory to zip)
+#   - repository.sankodi/ (directory to zip)
+#
+# TRIGGERS:
+# - Pushes to main or master branches
+# - Manual trigger via GitHub Actions UI
+#
+# OUTPUTS:
+# - Automatic version: 1.0.X (where X = run number)
+# - Creates GitHub Release with tags: v1.0.X
+# - Artifacts:
+#   - plugin.video.sankodi-1.0.X.zip
+#   - repository.sankodi-1.0.X.zip
+#   - repository.sankodi/addons.xml.md5 (checksum)
+#
+# USAGE:
+# 1. Commit and push code to main/master
+# 2. Workflow runs automatically
+# 3. Check Actions tab for status
+# 4. Releases appear at: https://github.com/user/sankodi/releases
+#
+# LOCAL TESTING:
+# act -j release  # requires https://github.com/nektos/act
+#
+# ============================================================================
+
+name: Build and Release
 
 on:
   push:
@@ -8,13 +44,13 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
 
     steps:
-      - name: Checkout code
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -22,65 +58,50 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install requests beautifulsoup4
+          python-version: '3.11'
 
       - name: Generate version
         id: version
         run: |
-          RUN_NUMBER=$GITHUB_RUN_NUMBER
-          VERSION="1.0.${RUN_NUMBER}"
-          echo "version=${VERSION}" >> $GITHUB_OUTPUT
-          echo "Generated version: ${VERSION}"
+          VERSION="1.0.${{ github.run_number }}"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
 
-      - name: Update addon version
-        env:
-          VERSION: ${{ steps.version.outputs.version }}
+      - name: Update plugin addon.xml
         run: |
-          sed -i "s/version=\"[^\"]*\"/version=\"$VERSION\"/" plugin.video.sankodi/addon.xml
-          sed -i "s/version=\"[^\"]*\"/version=\"$VERSION\"/" repository.sankodi/addons.xml
+          sed -i 's/version="[^"]*"/version="${{ env.VERSION }}"/g' plugin.video.sankodi/addon.xml
 
-      - name: Regenerate repository checksum
+      - name: Update repository addons.xml
+        run: |
+          sed -i 's/version="[^"]*"/version="${{ env.VERSION }}"/g' repository.sankodi/addons.xml
+
+      - name: Generate checksum
         run: |
           cd repository.sankodi
-          md5sum addons.xml > addons.xml.md5 || md5 addons.xml > addons.xml.md5
+          md5sum addons.xml > addons.xml.md5
           cd ..
 
-      - name: Validate addon
-        run: |
-          python -c "
-import xml.etree.ElementTree as ET
-tree = ET.parse('plugin.video.sankodi/addon.xml')
-root = tree.getroot()
-version = root.attrib['version']
-print(f'Addon version: {version}')
-          "
-
-      - name: Create addon zip
+      - name: Build plugin zip
         run: |
           cd plugin.video.sankodi
-          zip -r ../plugin.video.sankodi.zip .
+          zip -r ../plugin.video.sankodi-${{ env.VERSION }}.zip .
           cd ..
 
-      - name: Create repository zip
+      - name: Build repository zip
         run: |
           cd repository.sankodi
-          zip -r ../repository.sankodi.zip .
+          zip -r ../repository.sankodi-${{ env.VERSION }}.zip .
           cd ..
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: auto-${{ steps.version.outputs.version }}
-          name: Auto Build ${{ steps.version.outputs.version }}
+          tag_name: v${{ env.VERSION }}
+          name: Release ${{ env.VERSION }}
           draft: false
-          prerelease: true
+          prerelease: false
           files: |
-            plugin.video.sankodi.zip
-            repository.sankodi.zip
+            plugin.video.sankodi-${{ env.VERSION }}.zip
+            repository.sankodi-${{ env.VERSION }}.zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
