@@ -4,9 +4,9 @@
     <import addon="xbmc.python" version="3.0.0"/>
   </requires>
   <extension point="xbmc.addon.repository" name="SanKodi Repository">
-    <info>https://raw.githubusercontent.com/san/sankodi/main/repository.sankodi/addons.xml</info>
-    <checksum>https://raw.githubusercontent.com/san/sankodi/main/repository.sankodi/addons.xml.md5</checksum>
-    <datadir>https://github.com/san/sankodi/releases/download/</datadir>
+    <info>https://raw.githubusercontent.com/sangit6031hub/sankodi/main/repository.sankodi/addons.xml</info>
+    <checksum>https://raw.githubusercontent.com/sangit6031hub/sankodi/main/repository.sankodi/addons.xml.md5</checksum>
+    <datadir>https://github.com/sangit6031hub/sankodi/releases/download/</datadir>
   </extension>
   <extension point="xbmc.addon.metadata">
     <summary lang="en_GB">Repository for SanKodi addons</summary>

@@ -13,8 +13,8 @@
       <description lang="en_GB">A Kodi plugin to browse and stream videos from configurable websites. Each website is handled by a separate module.</description>
       <platform>all</platform>
       <license>GPL-3.0</license>
-      <website>https://github.com/san/sankodi</website>
-      <source>https://github.com/san/sankodi</source>
+      <website>https://github.com/sangit6031hub/sankodi</website>
+      <source>https://github.com/sangit6031hub/sankodi</source>
       <assets>
         <icon>resources/icon.png</icon>
         <fanart>resources/fanart.jpg</fanart>
