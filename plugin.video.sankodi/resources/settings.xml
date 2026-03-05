@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+  <category label="General">
+    <setting id="site1_url" type="text" label="Site 1 URL" default="https://example1.com"/>
+    <setting id="site2_url" type="text" label="Site 2 URL" default="https://example2.com"/>
+    <!-- Add more sites as needed -->
+  </category>
+</settings>
