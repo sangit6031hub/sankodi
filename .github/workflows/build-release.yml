@@ -83,15 +83,11 @@ jobs:
 
       - name: Build plugin zip
         run: |
-          cd plugin.video.sankodi
-          zip -r ../plugin.video.sankodi-${{ env.VERSION }}.zip .
-          cd ..
+          zip -r plugin.video.sankodi-${{ env.VERSION }}.zip plugin.video.sankodi
 
       - name: Build repository zip
         run: |
-          cd repository.sankodi
-          zip -r ../repository.sankodi-${{ env.VERSION }}.zip .
-          cd ..
+          zip -r repository.sankodi-${{ env.VERSION }}.zip repository.sankodi
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
